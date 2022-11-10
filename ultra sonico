@@ -1,0 +1,117 @@
+#include <AFMotor.h>
+
+#include <Ultrasonic.h>
+
+#define pino_Trig 9
+#define pino_Echo 10
+
+#define pino_IR_traseiro 14
+
+#define pino_IR_dianteiro 15
+
+int distancia;
+int sensor_dianteiro;
+int sensor_traseiro;
+
+
+int distancia_ataque = 15;
+
+int velocidade = 200;
+
+Ultrasonic ultrassonico(pino_Trig, pino_Echo);
+
+
+AF_DCMotor motor2(2);
+AF_DCMotor motor3(3);
+
+void setup() {
+
+  delay(3000);
+
+  motor2.setSpeed(velocidade);
+  motor3.setSpeed(velocidade);
+}
+
+void loop() {
+
+  ler_sensores();
+
+  if (sensor_dianteiro == 1) {
+    Pare();
+    Re();
+    Pare();
+    Manobre();
+    Pare();
+  }
+
+  if (sensor_traseiro == 1) {
+    Pare();
+    Ataque();
+    delay(500);
+    motor2.setSpeed(velocidade);
+    motor3.setSpeed(velocidade);
+  }
+
+
+  if (distancia <= distancia_ataque) {
+
+
+    while (sensor_dianteiro == 0) {
+      Ataque();
+    }
+  }
+
+  Frente();
+}
+
+
+
+
+void ler_sensores() {
+  distancia = ultrassonico.read();
+  sensor_dianteiro = digitalRead(pino_IR_dianteiro);
+  sensor_traseiro = digitalRead(pino_IR_traseiro);
+}
+
+
+void Frente() {
+  motor2.run(FORWARD);
+  motor3.run(FORWARD);
+  delay(1);
+}
+
+
+void Re() {
+  motor2.run(BACKWARD);
+  motor3.run(BACKWARD);
+  delay(500);
+}
+
+
+void Pare() {
+  motor2.run(RELEASE);
+  motor3.run(RELEASE);
+  delay(1);
+}
+
+
+void Ataque() {
+  motor2.setSpeed(255);
+  motor3.setSpeed(255);
+  motor2.run(FORWARD);
+  motor3.run(FORWARD);
+  delay(1);
+}
+
+
+void Manobre() {
+  if (random(1, 3) == 1) {
+    motor2.run(FORWARD);
+    motor3.run(BACKWARD);
+    delay(1);
+  } else {
+    motor2.run(FORWARD);
+    motor3.run(BACKWARD);
+  }
+  delay(250);
+}
